@@ -1,5 +1,4 @@
-% Hechos: Base de conocimiento con platos y calorías
-
+% Base de conocimiento: platos y sus calorías.
 entrada(paella, 200).
 entrada(gazpacho, 150).
 entrada(pasta, 300).
@@ -20,13 +19,12 @@ postre(nueces, 500).
 postre(yogurt, 100).
 postre(helado, 250).
 
-% Punto de entrada principal
-
+% Interfaz principal
 principal :-
     write('SISTEMA DE GESTIÓN DE CALORÍAS - "MI MEJOR COMIDA"'), nl,
     menu.
 
-% Menú interactivo
+% Muestra el menú interactivo principal
 menu :-
     repeat,
     nl,
@@ -41,58 +39,70 @@ menu :-
      write('Opción no válida. Intente nuevamente.'), nl, fail).
 
 % Cálculo de calorías del menú personalizado
-
 calcular_calorias_menu :-
-    write('Entradas: paella, gazpacho, pasta, ensalada_cesar, sopa_de_verduras.');
+    write('Entradas: paella, gazpacho, pasta, ensalada_cesar,'), 
+    write(' sopa_de_verduras.'), nl,
     write('Ingrese una entrada: '), read(Entrada),
-    validar_entrada(Entrada, CalE),
+    validar_entrada(Entrada, CaloriaE),
     
-    
-	write('Platos principales: filete_de_cerdo, pollo_asado, bistec_a_lo_pobre, trucha, bacalao, salmon_a_la_plancha, lasagna.');
+    write('Platos principales: filete_de_cerdo, pollo_asado, bistec_a_lo_pobre, '), 
+    write('trucha, bacalao, salmon_a_la_plancha, lasagna.'), nl,
     write('Ingrese un plato principal: '), read(Principal),
-    validar_principal(Principal, CalP),
+    validar_principal(Principal, CaloriaP),
     
-	write('Postres: flan, naranja, nueces, yogur, helado.');
+    write('Postres: flan, naranja, nueces, yogur, helado.'), nl, 
     write('Ingrese un postre: '), read(Postre),
-    validar_postre(Postre, CalPo),
+    validar_postre(Postre, CaloriaPo),
 
-    Total is CalE + CalP + CalPo,
+    Total is CaloriaE + CaloriaP + CaloriaPo,
     nl,
     write('--- RESUMEN DEL MENÚ ---'), nl,
-    write('Entrada: '), write(Entrada), write(' ('), write(CalE), write(' cal)'), nl,
-    write('Principal: '), write(Principal), write(' ('), write(CalP), write(' cal)'), nl,
-    write('Postre: '), write(Postre), write(' ('), write(CalPo), write(' cal)'), nl,
+    write('Entrada: '), write(Entrada), write(' ('), write(CaloriaE), write(' cal)'), nl,
+    write('Principal: '), write(Principal), write(' ('), write(CaloriaP), write(' cal)'), nl,
+    write('Postre: '), write(Postre), write(' ('), write(CaloriaPo), write(' cal)'), nl,
     write('TOTAL: '), write(Total), write(' calorías'), nl.
 
 % Validadores con control de errores
+	validar_entrada(E, C) :-
+    	entrada(E, C), !.
+	validar_entrada(_, _) :-
+    	write('Entrada no válida. Intente de nuevo.'), nl,
+    	calcular_calorias_menu, fail.
 
-validar_entrada(E, C) :-
-    entrada(E, C), !.
-validar_entrada(_, _) :-
-    write('Entrada no válida. Intente de nuevo.'), nl,
-    calcular_calorias_menu, fail.
+	validar_principal(P, C) :-
+    	principal(P, C), !.
+	validar_principal(_, _) :-
+    	write('Plato principal no válido. Intente de nuevo.'), nl,
+    	calcular_calorias_menu, fail.
 
-validar_principal(P, C) :-
-    principal(P, C), !.
-validar_principal(_, _) :-
-    write('Plato principal no válido. Intente de nuevo.'), nl,
-    calcular_calorias_menu, fail.
-
-validar_postre(P, C) :-
-    postre(P, C), !.
-validar_postre(_, _) :-
-    write('Postre no válido. Intente de nuevo.'), nl,
-    calcular_calorias_menu, fail.
+	validar_postre(P, C) :-
+    	postre(P, C), !.
+	validar_postre(_, _) :-
+    	write('Postre no válido. Intente de nuevo.'), nl,
+    	calcular_calorias_menu, fail.
 
 % Mostrar combinaciones bajo un límite calórico
+mostrar_combinaciones_bajas :-
+    repeat,
+    write('Ingrese el máximo de calorías deseado (número entero positivo): '), 
+    read(Limite),
+    (   integer(Limite), Limite > 0 -> 
+        nl,
+        write('--- MENÚS BAJOS EN CALORÍAS ---'), nl,
+        buscar_combinacion(Limite),
+        !
+    ;   write('Entrada incorrecta. Debe ingresar un número entero positivo.'), nl,
+        fail
+    ).
 
+% Encuentra combinaciones válidas
 mostrar_combinaciones_bajas :-
     write('Ingrese el máximo de calorías deseado: '), read(Limite),
     nl,
     write('--- MENÚS BAJOS EN CALORÍAS ---'), nl,
     buscar_combinacion(Limite),
     !.
-
+% Encuentra combinaciones válidas
 buscar_combinacion(Limite) :-
     entrada(E, CE),
     principal(P, CP),
